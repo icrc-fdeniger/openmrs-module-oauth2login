@@ -45,7 +45,7 @@ public class CustomDispatcherServlet implements ServletContextAware {
 			final String servletName = OAuth2LoginConstants.MODULE_ARTIFACT_ID;
 			
 			ServletRegistration servletReg = servletContext.addServlet(servletName, new DispatcherServlet(appContext));
-			servletReg.addMapping("/oauth2login");
+			servletReg.addMapping("/oauth2login", "/oauth2apilogin");
 			
 			log.info("Servlet '" + servletName + "' with webModuleApplicationContext config added successfully.");
 			

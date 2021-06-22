@@ -33,6 +33,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @Controller
 public class OAuth2LoginController {
 	
@@ -59,6 +62,16 @@ public class OAuth2LoginController {
 		this.userInfoUri = userInfoUri;
 	}
 	
+	@RequestMapping(value = "/oauth2apilogin", method = GET)
+	public String loginAPI(HttpServletRequest request) throws Exception {
+		String path = request.getServletPath();
+		final UserInfo userInfo = new UserInfo(oauth2Props, "{\"sub\":\"admin\",\"given_name\":\"admin\",\"family_name\":\"admin\",\"email\":\"admin\"}");
+		String info = userInfo.getUsername();
+		Context.authenticate(new OAuth2TokenCredentials(userInfo));
+		return "redirect:" + "/ws/rest/v1/session";
+	}
+	
+
 	@RequestMapping(value = "/oauth2login", method = GET)
 	public ModelAndView login() {
 		

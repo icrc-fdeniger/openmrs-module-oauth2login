@@ -10,6 +10,13 @@
 package org.openmrs.module.oauth2login.web.filter;
 
 import org.openmrs.api.context.Context;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.token.AccessTokenProvider;
+import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestOperations;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +49,13 @@ public class OAuth2LoginRequestFilter implements Filter {
 	public void destroy() {
 	}
 	
+	private RestOperations restTemplate;
+	
+	@Autowired
+	public void setRestTemplate(@Qualifier("oauth2ClientCredential.restTemplate") RestOperations restTemplate) {
+		this.restTemplate = restTemplate;
+	}
+	
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 	        throws IOException, ServletException {
@@ -49,6 +63,7 @@ public class OAuth2LoginRequestFilter implements Filter {
 		HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
 		HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 		
+		String path2 = httpRequest.getRequestURI();
 		String path = httpRequest.getServletPath();
 		path = (path == null) ? "" : path;
 		
@@ -62,8 +77,18 @@ public class OAuth2LoginRequestFilter implements Filter {
 			
 			// Login
 			if (!Context.isAuthenticated()) {
-				// non-authenticated requests are forwarded to the module login controller
-				httpResponse.sendRedirect(httpRequest.getContextPath() + "/oauth2login");
+				Authentication extract = new BearerTokenExtractor().extract(httpRequest);
+				if (extract != null) {
+					try {
+						httpResponse.sendRedirect(httpRequest.getContextPath() + "/oauth2apilogin");
+					}
+					catch (IOException e) {
+						e.printStackTrace();
+					}
+				} else {
+					// non-authenticated requests are forwarded to the module login controller
+					httpResponse.sendRedirect(httpRequest.getContextPath() + "/oauth2login");
+				}
 				return;
 			}
 		}
