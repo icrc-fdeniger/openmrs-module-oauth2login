@@ -31,72 +31,67 @@ import java.util.List;
  * is delegated to the OAuth 2 authentication provider.
  */
 public class OAuth2LoginRequestFilter implements Filter {
-	
-	/**
-	 * The list of URIs that should not be filtered because they are actually served by this module.
-	 * In other words there are controllers within this module that implement their behaviour, and
-	 * we need to let those controllers run, authenticated or not.
-	 */
-	private List<String> moduleURIs;
-	
-	@Override
-	public void init(FilterConfig filterConfig) {
-		String param = filterConfig.getInitParameter("moduleURIs");
-		moduleURIs = Arrays.asList(param.split(","));
-	}
-	
-	@Override
-	public void destroy() {
-	}
-	
-	@Override
-	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-	        throws IOException, ServletException {
-		
-		HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-		HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-		
-		String path2 = httpRequest.getRequestURI();
-		String path = httpRequest.getServletPath();
-		path = (path == null) ? "" : path;
-		
-		if (!moduleURIs.contains(path)) {
-			
-			// Logout (forwarding)
-			if (isLogoutRequest(path, httpRequest)) {
-				httpResponse.sendRedirect(httpRequest.getContextPath() + "/oauth2logout");
-				return;
-			}
-			
-			// Login
-			if (!Context.isAuthenticated()) {
-				Authentication extract = new BearerTokenExtractor().extract(httpRequest);
-				if (extract!= null) {
-					try {
-						httpResponse.sendRedirect(httpRequest.getContextPath() + "/oauth2apilogin");
-					}
-					catch (IOException e) {
-						e.printStackTrace();
-					}
-				} else {
-					// non-authenticated requests are forwarded to the module login controller
-					httpResponse.sendRedirect(httpRequest.getContextPath() + "/oauth2login");
-				}
-				return;
-			}
-		}
-		
-		chain.doFilter(httpRequest, httpResponse);
-	}
-	
-	private boolean isLogoutRequest(String path, HttpServletRequest httpServletRequest) {
-		//"manual-logout": should be a constant from org.openmrs.module.appui.AppUiConstants
-		//in OpenMRS the path is ../../logout.action : should we use this in this test ?
-		//the attribute seems to be used in any case.
-		return path.equalsIgnoreCase("/logout")
-		//				|| path.equalsIgnoreCase("/oauth2logout")
-		        || (httpServletRequest.getSession() != null && "true".equals(httpServletRequest.getSession().getAttribute(
-		            "manual-logout")));
-	}
-	
+
+    /**
+     * The list of URIs that should not be filtered because they are actually served by this module.
+     * In other words there are controllers within this module that implement their behaviour, and
+     * we need to let those controllers run, authenticated or not.
+     */
+    private List<String> moduleURIs;
+
+    @Override
+    public void init(FilterConfig filterConfig) {
+        String param = filterConfig.getInitParameter("moduleURIs");
+        moduleURIs = Arrays.asList(param.split(","));
+    }
+
+    @Override
+    public void destroy() {
+    }
+
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
+        HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
+
+        String path2 = httpRequest.getRequestURI();
+        String path = httpRequest.getServletPath();
+        path = (path == null) ? "" : path;
+
+        if (!moduleURIs.contains(path)) {
+
+            // Logout (forwarding)
+            if (isLogoutRequest(path, httpRequest)) {
+                httpResponse.sendRedirect(httpRequest.getContextPath() + "/oauth2logout");
+                return;
+            }
+
+            // Login
+            if (!Context.isAuthenticated()) {
+                Authentication extract = new BearerTokenExtractor().extract(httpRequest);
+                if (extract != null) {
+                    System.err.println("API Flow");
+                } else {
+                    // non-authenticated requests are forwarded to the module login controller
+                    httpResponse.sendRedirect(httpRequest.getContextPath() + "/oauth2login");
+                }
+                return;
+            }
+        }
+
+        chain.doFilter(httpRequest, httpResponse);
+    }
+
+    private boolean isLogoutRequest(String path, HttpServletRequest httpServletRequest) {
+        //"manual-logout": should be a constant from org.openmrs.module.appui.AppUiConstants
+        //in OpenMRS the path is ../../logout.action : should we use this in this test ?
+        //the attribute seems to be used in any case.
+        return path.equalsIgnoreCase("/logout")
+                //				|| path.equalsIgnoreCase("/oauth2logout")
+                || (httpServletRequest.getSession() != null && "true".equals(httpServletRequest.getSession().getAttribute(
+                "manual-logout")));
+    }
+
 }
