@@ -71,7 +71,7 @@ public class OAuth2LoginRequestFilter implements Filter {
 			// Login
 			if (!Context.isAuthenticated()) {
 				Authentication extract = new BearerTokenExtractor().extract(httpRequest);
-				if (httpRequest.getHeader("apiKey") != null) {
+				if (extract!= null) {
 					try {
 						httpResponse.sendRedirect(httpRequest.getContextPath() + "/oauth2apilogin");
 					}
