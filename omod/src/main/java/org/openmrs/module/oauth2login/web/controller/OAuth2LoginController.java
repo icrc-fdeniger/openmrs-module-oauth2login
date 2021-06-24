@@ -9,13 +9,6 @@
  */
 package org.openmrs.module.oauth2login.web.controller;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.Properties;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,8 +26,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Properties;
+
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @Controller
 public class OAuth2LoginController {
