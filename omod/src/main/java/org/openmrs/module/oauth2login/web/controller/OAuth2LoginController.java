@@ -65,13 +65,13 @@ public class OAuth2LoginController {
 	@RequestMapping(value = "/oauth2apilogin", method = GET)
 	public String loginAPI(HttpServletRequest request) throws Exception {
 		String path = request.getServletPath();
-		final UserInfo userInfo = new UserInfo(oauth2Props, "{\"sub\":\"admin\",\"given_name\":\"admin\",\"family_name\":\"admin\",\"email\":\"admin\"}");
+		final UserInfo userInfo = new UserInfo(oauth2Props,
+		        "{\"sub\":\"admin\",\"given_name\":\"admin\",\"family_name\":\"admin\",\"email\":\"admin\"}");
 		String info = userInfo.getUsername();
 		Context.authenticate(new OAuth2TokenCredentials(userInfo));
 		return "redirect:" + "/ws/rest/v1/session";
 	}
 	
-
 	@RequestMapping(value = "/oauth2login", method = GET)
 	public ModelAndView login() {
 		

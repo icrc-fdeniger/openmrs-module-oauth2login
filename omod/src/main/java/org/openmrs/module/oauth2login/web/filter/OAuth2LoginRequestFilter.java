@@ -49,13 +49,6 @@ public class OAuth2LoginRequestFilter implements Filter {
 	public void destroy() {
 	}
 	
-	private RestOperations restTemplate;
-	
-	@Autowired
-	public void setRestTemplate(@Qualifier("oauth2ClientCredential.restTemplate") RestOperations restTemplate) {
-		this.restTemplate = restTemplate;
-	}
-	
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 	        throws IOException, ServletException {
@@ -78,7 +71,7 @@ public class OAuth2LoginRequestFilter implements Filter {
 			// Login
 			if (!Context.isAuthenticated()) {
 				Authentication extract = new BearerTokenExtractor().extract(httpRequest);
-				if (extract != null) {
+				if (httpRequest.getHeader("apiKey") != null) {
 					try {
 						httpResponse.sendRedirect(httpRequest.getContextPath() + "/oauth2apilogin");
 					}
